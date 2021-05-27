@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 from matplotlib import pyplot as plt
 from torch.utils.data import Dataset
+import xarray 
 train = pd.read_csv('data/weekly_train.csv')
 test = pd.read_csv('data/public_weekly_test.csv')
 train_data_path = 'data/weekly_train/' + train.tail(52*30)['week_file_nm'].values

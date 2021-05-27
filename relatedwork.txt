@@ -1,0 +1,6 @@
+knn > 1등
+time series 문제로 접근하는 방법 > 2등
+unet+resnet block >3등
+Bidirectional convlstm > 4등
+convlstm + seq2seq > 5등
+convlstm + 지역분할 > 7등 (해빙도에 따른)
