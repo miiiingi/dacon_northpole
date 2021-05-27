@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np 
 from matplotlib import pyplot as plt
+from torch.utils.data import Dataset
 train = pd.read_csv('data/weekly_train.csv')
 test = pd.read_csv('data/public_weekly_test.csv')
 train_data_path = 'data/weekly_train/' + train.tail(52*30)['week_file_nm'].values
@@ -19,11 +20,7 @@ def train_map_func(x_list, y_list):
     train_y = train_y.astype(np.float32)/250
     return train_x, train_y
 
-def make_dataset(type) : 
-    input_window_size = 12
-    target_window_size = 12
-    gap = 2
-    step = 1
+def make_datasetlist(input_window_size = 12, target_window_size = 12, gap = 2, step = 1) : 
     input_data_list, target_data_list = [], []
 
     for i in range(0, len(train_data_path)-input_window_size-target_window_size-gap+1, step):
@@ -31,3 +28,31 @@ def make_dataset(type) :
         target_data = train_data_path[i+input_window_size+gap:i+input_window_size+gap+target_window_size]
         input_data_list.append(input_data)
         target_data_list.append(target_data)
+
+    return input_data_list, target_data_list
+
+class dataset_train(Dataset) : 
+    def __init__(self) -> None:
+        data_input, data_target = make_datasetlist()
+        self.list_input = data_input[:-52]
+        self.list_target = data_target[:-52]
+
+    def __len__(self) -> int:
+        return len(self.list_input)
+
+    def __getitem__(self, index: int):
+        data_input, data_target = train_map_func(self.list_input[index], self.list_target[index])
+        return data_input, data_target
+
+class dataset_test(Dataset) : 
+    def __init__(self) -> None:
+        data_input, data_target = make_datasetlist()
+        self.list_input = data_input[-52:]
+        self.list_target = data_target[-52:]
+
+    def __len__(self) -> int:
+        return len(self.list_input)
+
+    def __getitem__(self, index: int):
+        data_input, data_target = train_map_func(self.list_input[index], self.list_target[index])
+        return data_input, data_target
