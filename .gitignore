@@ -132,3 +132,4 @@ checkpoint/
 *.txt
 runs/
 *.pth
+*.csv

@@ -11,19 +11,19 @@ writer = SummaryWriter()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='dacon_credit prediction') 
-    parser.add_argument("--num_epochs", type=int, default=300)
+    parser.add_argument("--num_epochs", type=int, default=600)
     parser.add_argument("--model", type=str, default='model')
     args = parser.parse_args()
     # Hyper-paramter
     learning_rate = 0.1
     batchsize = 2
-    traindset = dataset_train()
+    trainset = dataset_train()
     testset = dataset_val()
-    trainloader = DataLoader(traindset, batch_size = batchsize)
+    trainloader = DataLoader(trainset, batch_size = batchsize)
     testloader = DataLoader(testset, batch_size = batchsize)
 
     model = Model(12, 12).to(device)
-    model.load_state_dict(torch.load('model.pth')())  # failure
+    model.load_state_dict(torch.load('model2.pth'))  # failure
     optimizer = SGD(model.parameters(), lr = learning_rate)
     scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
     criterion = nn.L1Loss()

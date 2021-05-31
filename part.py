@@ -1,12 +1,15 @@
 import pandas as pd
-import numpy as np 
+import numpy as np
+from pandas.io.pytables import DataIndexableCol 
 from torch.utils.data import Dataset
 from torch import nn as nn 
 train = pd.read_csv('data/weekly_train.csv')
 test = pd.read_csv('data/public_weekly_test.csv')
 train_data_path = 'data/weekly_train/' + train.tail(52*30)['week_file_nm'].values
+test_data_path = 'data/weekly_train/' + test.tail(12)['week_file_nm'].values
 # 테스트 활용 가능 마지막 제공 데이터와 맞춰야 하는 기간 사이에는 2주의 공백이있음.
 # 과거 12주의 해빙 변화를 보고 2주 뒤부터 12주 간의 변화를 예측하는 모델을 만들자.
+
 class BatchAct(nn.Module) : 
     def __init__(self, channels_output) -> None:
         super(BatchAct, self).__init__()
@@ -62,9 +65,10 @@ def train_map_func(x_list, y_list):
     return train_x, train_y
 
 def test_map_func(x_list):
-    train_x = []
-    for path in x_list:
-        train_x.append(np.load(path)[:,:,0:1])
+    # train_x = []
+    # for path in x_list:
+    #     train_x.append(np.load(path)[:,:,0:1])
+    train_x = np.load(x_list)[:, :, 0]
     train_x = np.array(train_x)
     train_x = train_x.astype(np.float32)/250
 
@@ -79,7 +83,18 @@ def make_datasetlist(input_window_size = 12, target_window_size = 12, gap = 2, s
         input_data_list.append(input_data)
         target_data_list.append(target_data)
 
+
     return input_data_list, target_data_list
+
+def make_datasetlist_test(input_window_size = 12, target_window_size = 12, gap = 2, step = 1) : 
+    input_data_list = []
+
+    for i in range(0, 1, step):
+        input_data = test_data_path[i:i+input_window_size]
+        input_data_list.append(input_data)
+
+    return input_data_list
+
 
 class dataset_train(Dataset) : 
     def __init__(self) -> None:
@@ -109,8 +124,9 @@ class dataset_val(Dataset) :
 
 class dataset_test(Dataset) : 
     def __init__(self) -> None:
-        test = pd.read_csv('data/public_weekly_test.csv')
-        self.test_path = './data/weekly_train/' + test.tail(12)['week_file_nm']
+        data_input = make_datasetlist_test()
+        # self.test_path = data_input
+        self.test_path = test_data_path 
 
     def __len__(self) -> int:
         return len(self.test_path)

@@ -1,5 +1,6 @@
 from numpy.lib.arraypad import pad
 from torch import nn as nn
+import torch
 from part import * 
 class Model(nn.Module) :
     def __init__(self, channels_input, channels_output) :
